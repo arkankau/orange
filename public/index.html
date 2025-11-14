@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Coach - Practice Session</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4ade80;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.disconnected {
+            background: #ef4444;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .content {
+            padding: 32px;
+        }
+
+        .session-setup {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .session-setup h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #1e293b;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #475569;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .session-info {
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            display: none;
+        }
+
+        .session-info.active {
+            display: block;
+        }
+
+        .session-id {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            display: inline-block;
+            margin-top: 8px;
+        }
+
+        .questions-panel {
+            margin-bottom: 24px;
+        }
+
+        .questions-panel h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #1e293b;
+        }
+
+        .question-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.3s;
+        }
+
+        .question-card.processing {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .question-card.completed {
+            border-color: #4ade80;
+            background: #f0fdf4;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .question-number {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .question-status {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            background: #e2e8f0;
+            color: #64748b;
+        }
+
+        .question-status.processing {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .question-status.completed {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .transcript {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            min-height: 60px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #475569;
+        }
+
+        .transcript.empty {
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        .body-language {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .metric {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .metric-bar {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .metric-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s;
+        }
+
+        .overlay-mode {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 400px;
+            max-height: calc(100vh - 40px);
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            z-index: 10000;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .overlay-mode.active {
+            display: block;
+        }
+
+        .overlay-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .overlay-content {
+            padding: 16px;
+        }
+
+        .toggle-overlay {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 10001;
+            display: none;
+        }
+
+        .toggle-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #e2e8f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fef2f2;
+            border: 2px solid #fecaca;
+            color: #991b1b;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="mainContainer">
+        <div class="header">
+            <h1>🎤 Interview Coach</h1>
+            <div class="status">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">Connecting...</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="session-setup" id="sessionSetup">
+                <h2>Start Practice Session</h2>
+                <div class="form-group">
+                    <label>Number of Questions</label>
+                    <input type="number" id="numQuestions" value="3" min="1" max="10">
+                </div>
+                <button class="btn" id="startSessionBtn" onclick="startSession()">Start Session</button>
+            </div>
+
+            <div class="error" id="errorMessage" style="display: none;"></div>
+
+            <div class="session-info" id="sessionInfo">
+                <h2>Session Active</h2>
+                <p>Session ID:</p>
+                <div class="session-id" id="sessionId"></div>
+                <div style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap;">
+                    <button class="btn" onclick="toggleOverlay()">Toggle Overlay Mode</button>
+                    <button class="btn" id="recordBtn" onclick="toggleRecording()" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                        🎤 Start Recording
+                    </button>
+                    <button class="btn" id="stopBtn" onclick="stopRecording()" style="background: linear-gradient(135deg, #64748b 0%, #475569 100%); display: none;">
+                        ⏹️ Stop Recording
+                    </button>
+                    <button class="btn" onclick="testSpeechAPI()" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); font-size: 12px;">
+                        🧪 Test Speech API
+                    </button>
+                </div>
+                <div id="recordingStatus" style="margin-top: 12px; padding: 12px; background: #fef2f2; border-radius: 8px; display: none;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="status-dot" style="background: #ef4444; animation: pulse 1s infinite;"></span>
+                        <span id="recordingText">Recording...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="questions-panel" id="questionsPanel" style="display: none;">
+                <h2>Questions</h2>
+                <div id="questionsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay Mode -->
+    <div class="overlay-mode" id="overlayMode">
+        <div class="overlay-header">
+            <h3 style="font-size: 16px;">Interview Coach</h3>
+            <div class="status">
+                <span class="status-dot" id="overlayStatusDot"></span>
+            </div>
+        </div>
+        <div class="overlay-content">
+            <div id="overlayQuestionsList"></div>
+        </div>
+    </div>
+
+    <button class="toggle-overlay" id="toggleOverlayBtn" onclick="toggleOverlay()">📊</button>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const API_URL = 'http://localhost:3000';
+        let socket = null;
+        let currentSessionId = null;
+        let questions = [];
+        let mediaRecorder = null;
+        let audioStream = null;
+        let currentQuestionIndex = 1;
+        let chunkIndex = 0;
+        let isRecording = false;
+        let recognition = null;
+        let currentTranscript = '';
+
+        // Initialize Socket.IO connection
+        function initSocket() {
+            socket = io(API_URL);
+            
+            socket.on('connect', () => {
+                updateStatus(true);
+                console.log('Connected to server');
+            });
+
+            socket.on('disconnect', () => {
+                updateStatus(false);
+                console.log('Disconnected from server');
+            });
+
+            socket.on('joined-session', (data) => {
+                console.log('Joined session:', data.sessionId);
+            });
+
+            socket.on('chunk-received', (data) => {
+                console.log('📦 Chunk received:', data);
+            });
+
+            socket.on('processing-started', (data) => {
+                console.log('⚙️ Processing started for question:', data.questionIndex);
+                updateQuestionStatus(data.questionIndex, 'processing');
+            });
+
+            socket.on('question-processed', (data) => {
+                console.log('✅ Question processed:', data);
+                console.log('   Transcript:', data.result.transcript);
+                console.log('   Body Language:', data.result.bodyLanguage);
+                updateQuestionData(data.questionIndex, data.result);
+            });
+
+            socket.on('processing-error', (data) => {
+                showError(`Error processing question ${data.questionIndex}: ${data.error}`);
+            });
+        }
+
+        function updateStatus(connected) {
+            const statusDot = document.getElementById('statusDot');
+            const overlayStatusDot = document.getElementById('overlayStatusDot');
+            const statusText = document.getElementById('statusText');
+            
+            if (connected) {
+                statusDot.classList.remove('disconnected');
+                overlayStatusDot?.classList.remove('disconnected');
+                statusText.textContent = 'Connected';
+            } else {
+                statusDot.classList.add('disconnected');
+                overlayStatusDot?.classList.add('disconnected');
+                statusText.textContent = 'Disconnected';
+            }
+        }
+
+        async function startSession() {
+            const numQuestions = parseInt(document.getElementById('numQuestions').value);
+            const btn = document.getElementById('startSessionBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> Creating session...';
+
+            try {
+                // Create question boundaries (simulated - in real use, these would come from actual timing)
+                const questionBoundaries = [];
+                for (let i = 1; i <= numQuestions; i++) {
+                    questionBoundaries.push({
+                        index: i,
+                        startTs: (i - 1) * 60,
+                        endTs: i * 60
+                    });
+                }
+
+                const response = await fetch(`${API_URL}/realtime/sessions`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ questions: questionBoundaries })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to create session');
+                }
+
+                const session = await response.json();
+                currentSessionId = session.id;
+                questions = session.questions;
+
+                // Join WebSocket room
+                socket.emit('join-session', currentSessionId);
+
+                // Update UI
+                document.getElementById('sessionSetup').style.display = 'none';
+                document.getElementById('sessionInfo').classList.add('active');
+                document.getElementById('sessionId').textContent = currentSessionId;
+                document.getElementById('questionsPanel').style.display = 'block';
+                document.getElementById('toggleOverlayBtn').classList.add('active');
+
+                renderQuestions();
+            } catch (error) {
+                showError(error.message);
+                btn.disabled = false;
+                btn.textContent = 'Start Session';
+            }
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questionsList');
+            const overlayContainer = document.getElementById('overlayQuestionsList');
+            
+            container.innerHTML = '';
+            overlayContainer.innerHTML = '';
+
+            questions.forEach(q => {
+                const card = createQuestionCard(q);
+                container.appendChild(card);
+                
+                const overlayCard = createQuestionCard(q, true);
+                overlayContainer.appendChild(overlayCard);
+            });
+        }
+
+        function createQuestionCard(question, isOverlay = false) {
+            const card = document.createElement('div');
+            card.className = 'question-card';
+            card.id = `question-${question.index}${isOverlay ? '-overlay' : ''}`;
+
+            card.innerHTML = `
+                <div class="question-header">
+                    <span class="question-number">Question ${question.index}</span>
+                    <span class="question-status" id="status-${question.index}${isOverlay ? '-overlay' : ''}">Waiting</span>
+                </div>
+                <div class="transcript empty" id="transcript-${question.index}${isOverlay ? '-overlay' : ''}">
+                    Waiting for response...
+                </div>
+                <div class="body-language" id="bodylang-${question.index}${isOverlay ? '-overlay' : ''}" style="display: none;">
+                    ${createBodyLanguageMetrics(question.index, isOverlay)}
+                </div>
+            `;
+
+            return card;
+        }
+
+        function createBodyLanguageMetrics(questionIndex, isOverlay = false) {
+            const metrics = ['warmth', 'competence', 'affect', 'eyeContactRatio', 'gestureIntensity', 'postureStability'];
+            const labels = {
+                warmth: 'Warmth',
+                competence: 'Competence',
+                affect: 'Affect',
+                eyeContactRatio: 'Eye Contact',
+                gestureIntensity: 'Gestures',
+                postureStability: 'Posture'
+            };
+
+            return metrics.map(metric => `
+                <div class="metric">
+                    <div class="metric-label">${labels[metric]}</div>
+                    <div class="metric-value" id="${metric}-${questionIndex}${isOverlay ? '-overlay' : ''}">--</div>
+                    <div class="metric-bar">
+                        <div class="metric-bar-fill" id="${metric}-bar-${questionIndex}${isOverlay ? '-overlay' : ''}" style="width: 0%"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateQuestionStatus(questionIndex, status) {
+            const statusEl = document.getElementById(`status-${questionIndex}`);
+            const statusElOverlay = document.getElementById(`status-${questionIndex}-overlay`);
+            const card = document.getElementById(`question-${questionIndex}`);
+            const cardOverlay = document.getElementById(`question-${questionIndex}-overlay`);
+
+            [statusEl, statusElOverlay].forEach(el => {
+                if (el) {
+                    el.textContent = status === 'processing' ? 'Processing...' : status === 'completed' ? 'Completed' : 'Waiting';
+                    el.className = `question-status ${status}`;
+                }
+            });
+
+            [card, cardOverlay].forEach(c => {
+                if (c) {
+                    c.className = `question-card ${status}`;
+                }
+            });
+        }
+
+        function updateQuestionData(questionIndex, result) {
+            // Update transcript
+            const transcriptEl = document.getElementById(`transcript-${questionIndex}`);
+            const transcriptElOverlay = document.getElementById(`transcript-${questionIndex}-overlay`);
+            
+            [transcriptEl, transcriptElOverlay].forEach(el => {
+                if (el && result.transcript) {
+                    el.textContent = result.transcript;
+                    el.classList.remove('empty');
+                }
+            });
+
+            // Update body language
+            if (result.bodyLanguage) {
+                const bodyLangEl = document.getElementById(`bodylang-${questionIndex}`);
+                const bodyLangElOverlay = document.getElementById(`bodylang-${questionIndex}-overlay`);
+                
+                [bodyLangEl, bodyLangElOverlay].forEach(el => {
+                    if (el) {
+                        el.style.display = 'grid';
+                    }
+                });
+
+                Object.keys(result.bodyLanguage).forEach(metric => {
+                    const value = result.bodyLanguage[metric];
+                    const percent = Math.round(value * 100);
+                    
+                    const valueEl = document.getElementById(`${metric}-${questionIndex}`);
+                    const valueElOverlay = document.getElementById(`${metric}-${questionIndex}-overlay`);
+                    const barEl = document.getElementById(`${metric}-bar-${questionIndex}`);
+                    const barElOverlay = document.getElementById(`${metric}-bar-${questionIndex}-overlay`);
+
+                    [valueEl, valueElOverlay].forEach(el => {
+                        if (el) el.textContent = percent + '%';
+                    });
+
+                    [barEl, barElOverlay].forEach(el => {
+                        if (el) el.style.width = percent + '%';
+                    });
+                });
+            }
+
+            updateQuestionStatus(questionIndex, 'completed');
+        }
+
+        function toggleOverlay() {
+            const overlay = document.getElementById('overlayMode');
+            const mainContainer = document.getElementById('mainContainer');
+            
+            if (overlay.classList.contains('active')) {
+                overlay.classList.remove('active');
+                mainContainer.style.display = 'block';
+            } else {
+                overlay.classList.add('active');
+                mainContainer.style.display = 'none';
+            }
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            setTimeout(() => {
+                errorEl.style.display = 'none';
+            }, 5000);
+        }
+
+        // Initialize Web Speech API for real-time transcription
+        function initSpeechRecognition() {
+            // Check browser support
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                console.error('❌ Web Speech API not supported');
+                showError('Web Speech API not supported. Please use Chrome or Edge browser.');
+                return null;
+            }
+
+            console.log('✅ Web Speech API is available');
+            const recognition = new SpeechRecognition();
+            
+            // Configure recognition
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+            recognition.maxAlternatives = 1;
+
+            // Track if we've received any results
+            let hasReceivedResults = false;
+
+            recognition.onstart = () => {
+                console.log('✅ Speech recognition STARTED');
+                hasReceivedResults = false;
+            };
+
+            recognition.onresult = (event) => {
+                hasReceivedResults = true;
+                console.log('🎤 Speech result event:', {
+                    resultIndex: event.resultIndex,
+                    resultsLength: event.results.length
+                });
+
+                let interimTranscript = '';
+                let finalTranscript = '';
+
+                // Process all results
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const result = event.results[i];
+                    const transcript = result[0].transcript;
+                    const isFinal = result.isFinal;
+                    
+                    console.log(`  [${i}] "${transcript}" (final: ${isFinal})`);
+                    
+                    if (isFinal) {
+                        finalTranscript += transcript + ' ';
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+
+                // Update transcript
+                if (finalTranscript) {
+                    currentTranscript += finalTranscript;
+                    console.log('✅ FINAL transcript added:', finalTranscript);
+                    console.log('📝 TOTAL transcript:', currentTranscript);
+                }
+                
+                // Always update UI with current state
+                const displayText = currentTranscript + interimTranscript;
+                if (displayText.trim()) {
+                    updateLiveTranscript(displayText);
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error('❌ Speech recognition ERROR:', event.error);
+                
+                // Handle specific errors
+                switch(event.error) {
+                    case 'no-speech':
+                        if (!hasReceivedResults) {
+                            console.log('ℹ️ No speech detected yet (waiting...)');
+                        }
+                        break;
+                    case 'audio-capture':
+                        showError('No microphone found. Please connect a microphone.');
+                        break;
+                    case 'not-allowed':
+                        showError('Microphone access denied. Please allow microphone access.');
+                        break;
+                    case 'network':
+                        showError('Network error. Check your internet connection.');
+                        break;
+                    case 'aborted':
+                        console.log('Speech recognition aborted');
+                        break;
+                    default:
+                        console.error('Unknown error:', event.error);
+                        showError(`Speech recognition error: ${event.error}`);
+                }
+            };
+
+            recognition.onend = () => {
+                console.log('⏹️ Speech recognition ENDED');
+                
+                // Only restart if we're still recording
+                if (isRecording) {
+                    console.log('🔄 Auto-restarting speech recognition...');
+                    setTimeout(() => {
+                        try {
+                            recognition.start();
+                        } catch (e) {
+                            console.error('❌ Failed to restart:', e);
+                        }
+                    }, 100);
+                }
+            };
+
+            recognition.onnomatch = () => {
+                console.log('⚠️ No speech match found');
+            };
+
+            recognition.onspeechstart = () => {
+                console.log('🎤 Speech detected!');
+            };
+
+            recognition.onspeechend = () => {
+                console.log('🎤 Speech ended');
+            };
+
+            return recognition;
+        }
+
+        function updateLiveTranscript(text) {
+            const transcriptEl = document.getElementById(`transcript-${currentQuestionIndex}`);
+            const transcriptElOverlay = document.getElementById(`transcript-${currentQuestionIndex}-overlay`);
+            
+            [transcriptEl, transcriptElOverlay].forEach(el => {
+                if (el) {
+                    el.textContent = text || 'Listening...';
+                    el.classList.remove('empty');
+                }
+            });
+        }
+
+        // Start/stop recording audio from microphone
+        async function toggleRecording() {
+            if (isRecording) {
+                stopRecording();
+                return;
+            }
+
+            try {
+                // Initialize speech recognition
+                recognition = initSpeechRecognition();
+                currentTranscript = '';
+
+                // Request microphone access
+                audioStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        channelCount: 1,
+                        sampleRate: 16000,
+                        echoCancellation: true,
+                        noiseSuppression: true
+                    } 
+                });
+
+                console.log('✅ Microphone access granted');
+
+                // Start speech recognition AFTER microphone access is granted
+                if (recognition) {
+                    // Start immediately - Web Speech API works with getUserMedia
+                    try {
+                        recognition.start();
+                        console.log('🎤 Starting speech recognition...');
+                    } catch (error) {
+                        console.error('❌ Failed to start (will retry):', error);
+                        // Retry after a brief delay
+                        setTimeout(() => {
+                            try {
+                                recognition.start();
+                                console.log('🎤 Speech recognition started (retry)');
+                            } catch (retryError) {
+                                console.error('❌ Failed after retry:', retryError);
+                                showError('Speech recognition failed. Please refresh the page.');
+                            }
+                        }, 300);
+                    }
+                } else {
+                    console.warn('⚠️ Speech recognition not available');
+                    showError('Speech recognition not supported. Please use Chrome or Edge.');
+                }
+
+                // Create MediaRecorder
+                const options = {
+                    mimeType: 'audio/webm;codecs=opus',
+                    audioBitsPerSecond: 16000
+                };
+
+                // Fallback to default if webm not supported
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                    options.mimeType = 'audio/webm';
+                }
+
+                mediaRecorder = new MediaRecorder(audioStream, options);
+                
+                mediaRecorder.ondataavailable = async (event) => {
+                    if (event.data.size > 0) {
+                        await sendAudioChunk(event.data);
+                    }
+                };
+
+                // Start recording with 2 second chunks
+                mediaRecorder.start(2000);
+                isRecording = true;
+
+                // Update UI
+                document.getElementById('recordBtn').style.display = 'none';
+                document.getElementById('stopBtn').style.display = 'inline-block';
+                document.getElementById('recordingStatus').style.display = 'block';
+                document.getElementById('recordingText').textContent = `Recording Question ${currentQuestionIndex}...`;
+
+                console.log('🎤 Recording started');
+            } catch (error) {
+                console.error('Error accessing microphone:', error);
+                showError('Failed to access microphone. Please allow microphone access.');
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                isRecording = false; // Set flag first to prevent auto-restart
+                
+                // Wait a moment for any final speech results
+                setTimeout(() => {
+                    // Stop speech recognition
+                    if (recognition) {
+                        try {
+                            recognition.stop();
+                        } catch (e) {
+                            console.log('Recognition already stopped');
+                        }
+                        recognition = null;
+                    }
+
+                    mediaRecorder.stop();
+                    mediaRecorder.stream.getTracks().forEach(track => track.stop());
+
+                    console.log('⏹️ Recording stopped');
+                    console.log('📝 Final transcript:', currentTranscript || '(empty - no speech detected)');
+                    
+                    // Send final chunk with transcript to trigger processing
+                    const finalTranscript = currentTranscript.trim();
+                    sendFinalChunk(finalTranscript);
+
+                    // Update UI
+                    document.getElementById('recordBtn').style.display = 'inline-block';
+                    document.getElementById('stopBtn').style.display = 'none';
+                    document.getElementById('recordingStatus').style.display = 'none';
+                    
+                    if (!finalTranscript || finalTranscript.length === 0) {
+                        console.warn('⚠️ No transcript captured!');
+                        console.warn('Possible reasons:');
+                        console.warn('  1. Web Speech API not working (try Test Speech API button)');
+                        console.warn('  2. Microphone access denied');
+                        console.warn('  3. No speech detected');
+                        console.warn('  4. Browser compatibility (use Chrome/Edge)');
+                        showError('No speech detected. Click "Test Speech API" to verify it works, or use Chrome/Edge browser.');
+                    }
+                }, 500); // Wait 500ms for final results
+            }
+        }
+
+        async function sendAudioChunk(audioBlob) {
+            if (!currentSessionId) return;
+
+            const question = questions.find(q => q.index === currentQuestionIndex);
+            if (!question) return;
+
+            const formData = new FormData();
+            formData.append('audio', audioBlob, `chunk-${chunkIndex}.webm`);
+            formData.append('questionIndex', currentQuestionIndex.toString());
+            formData.append('chunkIndex', chunkIndex.toString());
+            formData.append('timestamp', (Date.now() / 1000).toString());
+            formData.append('isLast', 'false');
+
+            try {
+                const response = await fetch(`${API_URL}/realtime/sessions/${currentSessionId}/chunk`, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (response.ok) {
+                    console.log(`📤 Sent audio chunk ${chunkIndex} for question ${currentQuestionIndex}`);
+                    chunkIndex++;
+                }
+            } catch (error) {
+                console.error('Error sending audio chunk:', error);
+            }
+        }
+
+        async function sendFinalChunk(transcript = '') {
+            if (!currentSessionId) return;
+
+            const question = questions.find(q => q.index === currentQuestionIndex);
+            if (!question) return;
+
+            // Send transcript directly via WebSocket or API
+            if (transcript) {
+                // Send transcript to backend for processing
+                try {
+                    const response = await fetch(`${API_URL}/realtime/sessions/${currentSessionId}/transcript`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            questionIndex: currentQuestionIndex,
+                            transcript: transcript,
+                        }),
+                    });
+
+                    if (response.ok) {
+                        console.log(`✅ Sent transcript for question ${currentQuestionIndex}`);
+                    }
+                } catch (error) {
+                    console.error('Error sending transcript:', error);
+                }
+            }
+
+            // Create a small empty blob to signal end
+            const emptyBlob = new Blob([], { type: 'audio/webm' });
+            const formData = new FormData();
+            formData.append('audio', emptyBlob, `final-chunk.webm`);
+            formData.append('questionIndex', currentQuestionIndex.toString());
+            formData.append('chunkIndex', chunkIndex.toString());
+            formData.append('timestamp', (Date.now() / 1000).toString());
+            formData.append('isLast', 'true'); // This triggers processing
+            if (transcript) {
+                formData.append('transcript', transcript); // Include transcript in form data
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/realtime/sessions/${currentSessionId}/chunk`, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (response.ok) {
+                    console.log(`✅ Sent final chunk for question ${currentQuestionIndex}, processing...`);
+                    
+                    // Move to next question
+                    currentQuestionIndex++;
+                    chunkIndex = 0;
+                    currentTranscript = ''; // Reset transcript
+                    
+                    if (currentQuestionIndex <= questions.length) {
+                        document.getElementById('recordingText').textContent = `Ready for Question ${currentQuestionIndex}. Click Start Recording to continue.`;
+                    } else {
+                        document.getElementById('recordingText').textContent = 'All questions completed!';
+                    }
+                }
+            } catch (error) {
+                console.error('Error sending final chunk:', error);
+            }
+        }
+
+        // Test Web Speech API
+        function testSpeechAPI() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert('❌ Web Speech API not supported in this browser. Please use Chrome or Edge.');
+                return;
+            }
+
+            alert('✅ Web Speech API is available! Click OK to test it.');
+            
+            const testRecognition = new SpeechRecognition();
+            testRecognition.continuous = false;
+            testRecognition.interimResults = true;
+            testRecognition.lang = 'en-US';
+
+            testRecognition.onstart = () => {
+                console.log('✅ Test: Speech recognition started');
+                alert('🎤 Listening... Say something!');
+            };
+
+            testRecognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                console.log('✅ Test: Got transcript:', transcript);
+                alert(`✅ Success! I heard: "${transcript}"`);
+            };
+
+            testRecognition.onerror = (event) => {
+                console.error('❌ Test error:', event.error);
+                alert(`❌ Error: ${event.error}`);
+            };
+
+            testRecognition.start();
+        }
+
+        // Initialize on page load
+        initSocket();
+    </script>
+</body>
+</html>
+
