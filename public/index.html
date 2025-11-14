@@ -356,6 +356,110 @@
             margin-bottom: 16px;
             font-size: 14px;
         }
+
+        .feedback {
+            margin-top: 16px;
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .feedback-content {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .feedback-score {
+            text-align: center;
+            padding: 16px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .score-label {
+            display: block;
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .score-value {
+            display: block;
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .feedback-text {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #475569;
+        }
+
+        .feedback-lists {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .feedback-strengths,
+        .feedback-improvements,
+        .feedback-suggestions {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .feedback-strengths h4,
+        .feedback-improvements h4,
+        .feedback-suggestions h4 {
+            font-size: 12px;
+            margin-bottom: 8px;
+            color: #1e293b;
+        }
+
+        .feedback-strengths ul,
+        .feedback-improvements ul,
+        .feedback-suggestions ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .feedback-strengths li,
+        .feedback-improvements li,
+        .feedback-suggestions li {
+            font-size: 12px;
+            padding: 4px 0;
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        .feedback-strengths li:before {
+            content: "✓ ";
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .feedback-improvements li:before {
+            content: "• ";
+            color: #f59e0b;
+            font-weight: bold;
+        }
+
+        .feedback-suggestions li:before {
+            content: "💡 ";
+        }
     </style>
 </head>
 <body>
@@ -428,7 +532,7 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        const API_URL = 'http://localhost:3000';
+        const API_URL = 'http://localhost:5001';
         let socket = null;
         let currentSessionId = null;
         let questions = [];
@@ -471,6 +575,7 @@
                 console.log('✅ Question processed:', data);
                 console.log('   Transcript:', data.result.transcript);
                 console.log('   Body Language:', data.result.bodyLanguage);
+                console.log('   Feedback:', data.result.feedback);
                 updateQuestionData(data.questionIndex, data.result);
             });
 
@@ -576,9 +681,38 @@
                 <div class="body-language" id="bodylang-${question.index}${isOverlay ? '-overlay' : ''}" style="display: none;">
                     ${createBodyLanguageMetrics(question.index, isOverlay)}
                 </div>
+                <div class="feedback" id="feedback-${question.index}${isOverlay ? '-overlay' : ''}" style="display: none;">
+                    ${createFeedbackSection(question.index, isOverlay)}
+                </div>
             `;
 
             return card;
+        }
+
+        function createFeedbackSection(questionIndex, isOverlay = false) {
+            return `
+                <div class="feedback-content">
+                    <div class="feedback-score" id="score-${questionIndex}${isOverlay ? '-overlay' : ''}">
+                        <span class="score-label">Overall Score</span>
+                        <span class="score-value" id="score-value-${questionIndex}${isOverlay ? '-overlay' : ''}">--</span>
+                    </div>
+                    <div class="feedback-text" id="feedback-text-${questionIndex}${isOverlay ? '-overlay' : ''}"></div>
+                    <div class="feedback-lists">
+                        <div class="feedback-strengths">
+                            <h4>✅ Strengths</h4>
+                            <ul id="strengths-${questionIndex}${isOverlay ? '-overlay' : ''}"></ul>
+                        </div>
+                        <div class="feedback-improvements">
+                            <h4>📈 Areas for Improvement</h4>
+                            <ul id="improvements-${questionIndex}${isOverlay ? '-overlay' : ''}"></ul>
+                        </div>
+                        <div class="feedback-suggestions">
+                            <h4>💡 Suggestions</h4>
+                            <ul id="suggestions-${questionIndex}${isOverlay ? '-overlay' : ''}"></ul>
+                        </div>
+                    </div>
+                </div>
+            `;
         }
 
         function createBodyLanguageMetrics(questionIndex, isOverlay = false) {
@@ -662,6 +796,59 @@
                     [barEl, barElOverlay].forEach(el => {
                         if (el) el.style.width = percent + '%';
                     });
+                });
+            }
+
+            // Update feedback
+            if (result.feedback) {
+                const feedbackEl = document.getElementById(`feedback-${questionIndex}`);
+                const feedbackElOverlay = document.getElementById(`feedback-${questionIndex}-overlay`);
+                
+                [feedbackEl, feedbackElOverlay].forEach(el => {
+                    if (el) {
+                        el.style.display = 'block';
+                    }
+                });
+
+                // Update score
+                const scoreEl = document.getElementById(`score-value-${questionIndex}`);
+                const scoreElOverlay = document.getElementById(`score-value-${questionIndex}-overlay`);
+                [scoreEl, scoreElOverlay].forEach(el => {
+                    if (el) el.textContent = result.feedback.overallScore + '/100';
+                });
+
+                // Update feedback text
+                const feedbackTextEl = document.getElementById(`feedback-text-${questionIndex}`);
+                const feedbackTextElOverlay = document.getElementById(`feedback-text-${questionIndex}-overlay`);
+                [feedbackTextEl, feedbackTextElOverlay].forEach(el => {
+                    if (el) el.textContent = result.feedback.detailedFeedback;
+                });
+
+                // Update strengths
+                const strengthsEl = document.getElementById(`strengths-${questionIndex}`);
+                const strengthsElOverlay = document.getElementById(`strengths-${questionIndex}-overlay`);
+                [strengthsEl, strengthsElOverlay].forEach(el => {
+                    if (el) {
+                        el.innerHTML = result.feedback.strengths.map(s => `<li>${s}</li>`).join('');
+                    }
+                });
+
+                // Update improvements
+                const improvementsEl = document.getElementById(`improvements-${questionIndex}`);
+                const improvementsElOverlay = document.getElementById(`improvements-${questionIndex}-overlay`);
+                [improvementsEl, improvementsElOverlay].forEach(el => {
+                    if (el) {
+                        el.innerHTML = result.feedback.areasForImprovement.map(a => `<li>${a}</li>`).join('');
+                    }
+                });
+
+                // Update suggestions
+                const suggestionsEl = document.getElementById(`suggestions-${questionIndex}`);
+                const suggestionsElOverlay = document.getElementById(`suggestions-${questionIndex}-overlay`);
+                [suggestionsEl, suggestionsElOverlay].forEach(el => {
+                    if (el) {
+                        el.innerHTML = result.feedback.suggestions.map(s => `<li>${s}</li>`).join('');
+                    }
                 });
             }
 
@@ -989,25 +1176,10 @@
             const question = questions.find(q => q.index === currentQuestionIndex);
             if (!question) return;
 
-            // Send transcript directly via WebSocket or API
+            // Transcript is already sent with the last chunk, so we just log it
             if (transcript) {
-                // Send transcript to backend for processing
-                try {
-                    const response = await fetch(`${API_URL}/realtime/sessions/${currentSessionId}/transcript`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            questionIndex: currentQuestionIndex,
-                            transcript: transcript,
-                        }),
-                    });
-
-                    if (response.ok) {
-                        console.log(`✅ Sent transcript for question ${currentQuestionIndex}`);
-                    }
-                } catch (error) {
-                    console.error('Error sending transcript:', error);
-                }
+                console.log('✅ Final transcript ready for question', currentQuestionIndex, ':', transcript.substring(0, 100) + '...');
+                console.log('   Processing will happen automatically when the last chunk is processed.');
             }
 
             // Create a small empty blob to signal end

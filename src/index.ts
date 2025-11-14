@@ -19,10 +19,16 @@ const io = new SocketIOServer(httpServer, {
   },
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5001;
 
-// Middleware
-app.use(cors());
+// Middleware - CORS with permissive settings
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: false
+}));
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.raw({ type: 'application/octet-stream', limit: '50mb' }));
 
@@ -30,6 +36,7 @@ app.use(express.raw({ type: 'application/octet-stream', limit: '50mb' }));
 app.use((req, res, next) => {
   // Remove CSP header for all responses
   res.removeHeader('Content-Security-Policy');
+  res.removeHeader('X-Frame-Options');
   next();
 });
 

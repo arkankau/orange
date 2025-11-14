@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { transcribeAudioChunk } from './asr';
 import { analyzeBodyLanguage } from './bodyLanguage';
 import { buildQuestionVector } from './embedding';
+import { generateInterviewFeedback } from './feedback';
 import { BodyLanguageFeatures } from '../types';
 
 const TEMP_DIR = path.join(process.cwd(), 'temp');
@@ -24,6 +25,13 @@ export interface ProcessedChunk {
   transcript?: string;
   bodyLanguage?: BodyLanguageFeatures;
   vector?: number[];
+  feedback?: {
+    strengths: string[];
+    areasForImprovement: string[];
+    overallScore: number;
+    detailedFeedback: string;
+    suggestions: string[];
+  };
   status: 'processing' | 'completed' | 'error';
   error?: string;
 }
@@ -142,6 +150,44 @@ export async function processStreamChunk(
     // Build vector if we have both transcript and body language
     if (result.transcript && result.bodyLanguage) {
       result.vector = await buildQuestionVector(result.transcript, result.bodyLanguage);
+      
+      // Generate interview feedback using Claude
+      console.log(`📝 Generating feedback for question ${chunk.questionIndex}...`);
+      console.log(`   Transcript: "${result.transcript.substring(0, 100)}..."`);
+      console.log(`   Body language metrics available: ${!!result.bodyLanguage}`);
+      
+      try {
+        const feedback = await generateInterviewFeedback(
+          result.transcript,
+          result.bodyLanguage,
+          chunk.questionIndex
+        );
+        result.feedback = {
+          strengths: feedback.strengths,
+          areasForImprovement: feedback.areasForImprovement,
+          overallScore: feedback.overallScore,
+          detailedFeedback: feedback.detailedFeedback,
+          suggestions: feedback.suggestions,
+        };
+        console.log(`✅ Feedback generated: Score ${feedback.overallScore}/100`);
+        console.log(`   Strengths: ${feedback.strengths.length}, Improvements: ${feedback.areasForImprovement.length}`);
+      } catch (error) {
+        console.error('❌ Error generating feedback:', error);
+        if (error instanceof Error) {
+          console.error('   Error details:', error.message);
+        }
+        // Generate fallback feedback so UI always has something to show
+        console.log('   ⚠️ Using fallback feedback due to API error');
+        // The generateInterviewFeedback function now always returns feedback,
+        // so this catch block should rarely be hit, but just in case:
+        result.feedback = {
+          strengths: ['Response provided'],
+          areasForImprovement: ['Continue practicing'],
+          overallScore: 60,
+          detailedFeedback: 'Feedback generation encountered an issue. Please try again.',
+          suggestions: ['Check your internet connection', 'Verify API key is set'],
+        };
+      }
     } else if (result.bodyLanguage) {
       // Even without transcript, we can still create a vector with just body language
       // Use empty transcript or placeholder
