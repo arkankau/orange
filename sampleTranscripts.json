@@ -1,0 +1,64 @@
+{
+  "transcripts": [
+    {
+      "id": "market-entry-1",
+      "frameworkId": "market-entry",
+      "question": "Should our client enter the electric vehicle charging station market?",
+      "transcript": "Well, I think the first thing we need to look at is the competition. There are already players like ChargePoint and Tesla in this space, so we need to understand how crowded it is. Then I'd look at the market size - how many EV owners are there and how fast is that growing. We should also think about the costs involved in setting up charging stations and whether we can make money from this. Finally, I'd want to know if our client has any experience in this area or if they'd be starting from scratch.",
+      "bodyLanguage": {
+        "eyeContact": 0.7,
+        "fidgeting": 0.4,
+        "pace": 0.6,
+        "confidence": 0.65
+      }
+    },
+    {
+      "id": "market-entry-2",
+      "frameworkId": "market-entry",
+      "question": "Should we expand our retail chain into Southeast Asia?",
+      "transcript": "I would structure this by first looking at market attractiveness - what's the market size, growth rate, and consumer trends in Southeast Asia. Then I'd analyze the competitive landscape - who are the incumbents, what's their market share, and what barriers to entry exist. Next, I'd evaluate our company's capabilities - do we have the right expertise, supply chain, and brand recognition. Then I'd look at the economics - what are the expected revenues, costs, and time to breakeven. Finally, I'd assess risks like regulatory environment, political stability, and currency fluctuations.",
+      "bodyLanguage": {
+        "eyeContact": 0.9,
+        "fidgeting": 0.2,
+        "pace": 0.8,
+        "confidence": 0.85
+      }
+    },
+    {
+      "id": "profitability-1",
+      "frameworkId": "profitability",
+      "question": "A restaurant chain has seen profits decline by 20% over the last year. What's going on?",
+      "transcript": "So profits are revenue minus costs. On the revenue side, I'd check if customer traffic has gone down or if they've had to lower prices. Maybe competitors opened nearby. For costs, I'd look at food costs - maybe ingredient prices went up. Also labor costs could have increased. And then there might be inefficiencies in operations like food waste or scheduling. I'd also want to know if this is happening at all locations or just some of them.",
+      "bodyLanguage": {
+        "eyeContact": 0.6,
+        "fidgeting": 0.5,
+        "pace": 0.5,
+        "confidence": 0.55
+      }
+    },
+    {
+      "id": "profitability-2",
+      "frameworkId": "profitability",
+      "question": "A software company's profits have dropped despite increasing revenue. Why?",
+      "transcript": "This is interesting because revenue is going up but profits are down, so it's definitely a cost issue. I'd structure this into fixed and variable costs. Fixed costs might include things like office rent, salaries for core staff, and software licenses - these might have increased. Variable costs scale with revenue, like cloud hosting, sales commissions, and customer support. I'd also look at product mix - maybe they're selling more of a lower-margin product. And then there are external factors like increased competition forcing them to spend more on marketing or sales.",
+      "bodyLanguage": {
+        "eyeContact": 0.85,
+        "fidgeting": 0.3,
+        "pace": 0.75,
+        "confidence": 0.8
+      }
+    },
+    {
+      "id": "product-launch-1",
+      "frameworkId": "product-launch",
+      "question": "Should our client launch a premium meal kit subscription service?",
+      "transcript": "I think the key question is whether there's demand for this. The meal kit market has players like Blue Apron and HelloFresh, but maybe there's room for a premium offering. We'd need to understand who the target customer is - probably busy professionals with high income. We should look at pricing and whether people will pay a premium. Competition is important too - what makes us different from existing options. And we need to think about the operational complexity of sourcing premium ingredients and managing logistics. The unit economics need to work - what's the customer acquisition cost versus lifetime value.",
+      "bodyLanguage": {
+        "eyeContact": 0.75,
+        "fidgeting": 0.35,
+        "pace": 0.65,
+        "confidence": 0.7
+      }
+    }
+  ]
+}
