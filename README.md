@@ -1,309 +1,360 @@
-# Mental Model Interview Coach - Backend API
+# Consulting Interview Coach API
 
-A hackathon MVP backend service that processes audio/video interview recordings and generates per-question feature vectors for mental model analysis.
+AI-powered consulting interview feedback system using Claude API to analyze candidate responses and provide structured feedback.
 
 ## Features
 
-- **Media Segmentation**: Extract audio/video segments for each interview question using ffmpeg
-- **Speech-to-Text**: Transcribe audio segments using OpenAI Whisper API
-- **Body Language Analysis**: Analyze body language features (stub implementation for hackathon)
-- **Feature Vectors**: Generate combined text + body language feature vectors for each question
-- **Vector Storage**: Store vectors in-memory (easily swappable for production vector DB)
-- **Real-Time Processing**: Stream audio/video chunks during live Zoom calls with WebSocket updates
-- **Zoom Integration**: Webhook endpoints and streaming support for real-time interview analysis
-
-## Tech Stack
-
-- **Runtime**: Node.js with TypeScript
-- **Framework**: Express.js
-- **WebSocket**: Socket.IO for real-time updates
-- **Media Processing**: ffmpeg (via fluent-ffmpeg)
-- **ASR**: OpenAI Whisper API
-- **Embeddings**: OpenAI text-embedding-3-small
-- **Vector Storage**: In-memory (ready for Pinecone/Qdrant/pgvector swap)
-
-## Setup
-
-### Prerequisites
-
-- **Node.js 18+** (required for File API support in ASR service)
-- **ffmpeg** installed on your system (`brew install ffmpeg` on macOS, `apt-get install ffmpeg` on Ubuntu)
-- API keys for OpenAI (Whisper + Embeddings)
-
-### Installation
-
-```bash
-# Install dependencies
-npm install
-
-# Copy environment variables
-cp .env.example .env
-
-# Edit .env and add your API keys
-# ANTHROPIC_API_KEY=your-key-here (provided)
-# OPENAI_API_KEY=your-openai-key-here
-```
-
-### Build
-
-```bash
-npm run build
-```
-
-### Run
-
-```bash
-# Development mode (with hot reload)
-npm run dev
-
-# Production mode
-npm start
-```
-
-The server will start on `http://localhost:3000`
-
-## Real-Time Zoom Integration
-
-For real-time processing during live Zoom calls, see [REALTIME.md](./REALTIME.md) for detailed documentation.
-
-Quick example:
-```bash
-# Create real-time session
-curl -X POST http://localhost:3000/realtime/sessions \
-  -H "Content-Type: application/json" \
-  -d '{"questions": [{"index": 1, "startTs": 0, "endTs": 60}]}'
-
-# Stream chunks (see REALTIME.md for WebSocket setup)
-curl -X POST http://localhost:3000/realtime/sessions/{sessionId}/chunk \
-  -F "audio=@chunk.wav" \
-  -F "questionIndex=1" \
-  -F "chunkIndex=0" \
-  -F "isLast=true"
-```
-
-## API Endpoints
-
-### 1. Create Session
-
-Create a new interview session with media path and question boundaries.
-
-```bash
-curl -X POST http://localhost:3000/sessions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "mediaPath": "/path/to/interview.mp4",
-    "questions": [
-      {
-        "index": 1,
-        "startTs": 32.5,
-        "endTs": 97.1
-      },
-      {
-        "index": 2,
-        "startTs": 100.0,
-        "endTs": 180.0
-      }
-    ]
-  }'
-```
-
-**Response:**
-```json
-{
-  "id": "session-uuid",
-  "mediaPath": "/path/to/interview.mp4",
-  "questions": [
-    {
-      "id": "question-uuid",
-      "sessionId": "session-uuid",
-      "index": 1,
-      "startTs": 32.5,
-      "endTs": 97.1
-    },
-    ...
-  ],
-  "createdAt": "2024-01-01T00:00:00.000Z"
-}
-```
-
-### 2. Process Session
-
-Process a session: extract segments, transcribe, analyze body language, and generate vectors.
-
-```bash
-curl -X POST http://localhost:3000/sessions/{sessionId}/process
-```
-
-**Response:**
-```json
-{
-  "id": "session-uuid",
-  "mediaPath": "/path/to/interview.mp4",
-  "questions": [
-    {
-      "id": "question-uuid",
-      "sessionId": "session-uuid",
-      "index": 1,
-      "startTs": 32.5,
-      "endTs": 97.1,
-      "transcript": "This is the transcribed text...",
-      "bodyLanguage": {
-        "warmth": 0.75,
-        "competence": 0.82,
-        "affect": 0.68,
-        "eyeContactRatio": 0.71,
-        "gestureIntensity": 0.45,
-        "postureStability": 0.88
-      },
-      "vectorLength": 390,
-      "transcriptLength": 42
-    },
-    ...
-  ],
-  "processedAt": "2024-01-01T00:05:00.000Z"
-}
-```
-
-### 3. Get Vectors
-
-Retrieve all vectors for a session.
-
-```bash
-curl http://localhost:3000/sessions/{sessionId}/vectors
-```
-
-**Response:**
-```json
-[
-  {
-    "questionIndex": 1,
-    "vectorLength": 390,
-    "bodyLanguage": {
-      "warmth": 0.75,
-      "competence": 0.82,
-      "affect": 0.68,
-      "eyeContactRatio": 0.71,
-      "gestureIntensity": 0.45,
-      "postureStability": 0.88
-    },
-    "transcript": "This is the transcribed text...",
-    "createdAt": "2024-01-01T00:05:00.000Z"
-  },
-  ...
-]
-```
-
-### 4. Get Session
-
-Get session details.
-
-```bash
-curl http://localhost:3000/sessions/{sessionId}
-```
-
-## Example Workflow
-
-```bash
-# 1. Create a session
-SESSION_ID=$(curl -X POST http://localhost:3000/sessions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "mediaPath": "./sample-interview.mp4",
-    "questions": [
-      {"index": 1, "startTs": 0, "endTs": 60},
-      {"index": 2, "startTs": 60, "endTs": 120}
-    ]
-  }' | jq -r '.id')
-
-# 2. Process the session (this may take a few minutes)
-curl -X POST http://localhost:3000/sessions/$SESSION_ID/process
-
-# 3. Get the vectors
-curl http://localhost:3000/sessions/$SESSION_ID/vectors
-```
+- **Framework Library**: 5 pre-built consulting frameworks (Market Entry, Profitability, M&A, Product Launch, Cost Reduction)
+- **Mental Model Extraction**: Automatically extracts candidate's problem-solving structure from transcripts
+- **Gap Analysis**: Identifies missing, misprioritized, and redundant components
+- **Actionable Feedback**: Provides concise improvement summaries
+- **Sample Transcripts**: Ready-to-use test data
 
 ## Project Structure
 
 ```
-src/
-├── index.ts                 # Main server entry point
-├── types/
-│   └── index.ts            # TypeScript type definitions
-├── routes/
-│   └── sessions.ts         # Session API routes
-├── services/
-│   ├── media.ts            # Media segmentation (ffmpeg)
-│   ├── asr.ts              # Speech-to-text (Whisper)
-│   ├── bodyLanguage.ts     # Body language analysis (stub)
-│   └── embedding.ts        # Text embeddings + vector fusion
-└── stores/
-    ├── sessionStore.ts     # Session storage (in-memory)
-    └── vectorStore.ts      # Vector storage (in-memory)
+orange-2/
+├── server.js              # Main Express server
+├── frameworks.json        # Consulting framework library
+├── sampleTranscripts.json # Test data
+├── test.js               # API test suite
+├── package.json
+├── .env                  # API key configuration
+└── README.md
 ```
 
-## Implementation Notes
+## Quick Start
 
-### Body Language Analysis
+### 1. Install Dependencies
 
-Currently implemented as a stub that returns pseudo-random values. For production, integrate with:
-- MediaPipe Face Mesh (eye contact)
-- MediaPipe Pose (gestures, posture)
-- Emotion recognition models (affect, warmth)
-- Confidence estimation models (competence)
+```bash
+npm install
+```
 
-### Vector Storage
+### 2. Configure Environment
 
-Currently in-memory. To swap for production:
-1. Replace `src/stores/vectorStore.ts` with your vector DB client
-2. Implement the same interface: `saveQuestionVector()` and `getVectorsBySession()`
-3. Recommended: Pinecone, Qdrant, or pgvector
+Your `.env` file is already set up with:
+```
+ANTHROPIC_API_KEY=sk-ant-api03-...
+PORT=3000
+```
 
-### Error Handling
+⚠️ **IMPORTANT**: Your API key is currently exposed. After testing, rotate it at:
+https://console.anthropic.com/settings/keys
 
-- Development mode includes fallback placeholders for failed API calls
-- Production mode will throw errors for debugging
-- Individual question failures don't stop the entire session processing
+### 3. Start the Server
+
+```bash
+npm start
+```
+
+You should see:
+```
+🚀 Consulting Interview Coach API
+📡 Server running on http://localhost:3000
+```
+
+### 4. Run Tests
+
+In a new terminal:
+```bash
+npm test
+```
+
+## API Endpoints
+
+### Health Check
+```bash
+GET /health
+```
+
+### Get All Frameworks
+```bash
+GET /api/frameworks
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "count": 5,
+  "frameworks": [
+    {
+      "id": "market-entry",
+      "name": "Market Entry",
+      "description": "Framework for evaluating whether to enter a new market"
+    }
+  ]
+}
+```
+
+### Get Specific Framework
+```bash
+GET /api/frameworks/:id
+```
+
+**Example:**
+```bash
+curl http://localhost:3000/api/frameworks/market-entry
+```
+
+### Get Sample Transcripts
+```bash
+GET /api/samples
+```
+
+### Analyze Transcript
+```bash
+POST /api/analyze
+Content-Type: application/json
+
+{
+  "transcript": "I would first look at the market size...",
+  "frameworkId": "market-entry",
+  "bodyLanguage": {
+    "eyeContact": 0.8,
+    "fidgeting": 0.3,
+    "pace": 0.7,
+    "confidence": 0.75
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "analysis": {
+    "your_model": {
+      "tree": {
+        "Market": ["Market size", "Growth"],
+        "Competition": ["Players"]
+      }
+    },
+    "ideal_model": {
+      "tree": {
+        "Market": ["Market size", "Market growth", "Market trends"],
+        "Customer": ["Customer segments", "Customer needs"],
+        "Competition": ["Number of competitors", "Barriers to entry"],
+        "Economics": ["Revenue potential", "Cost structure"],
+        "Capabilities": ["Required capabilities", "Our strengths"],
+        "Risks": ["Regulatory risks", "Market risks"]
+      }
+    },
+    "delta": {
+      "missing": ["Customer segments", "Economics", "Capabilities"],
+      "misprioritized": [],
+      "redundant": []
+    },
+    "fix_summary": "Start with market size and customer segmentation before diving into competition..."
+  },
+  "metadata": {
+    "frameworkUsed": "Market Entry",
+    "tokensUsed": 1234
+  }
+}
+```
+
+### Test with Sample Data
+```bash
+POST /api/test-sample/:id
+```
+
+**Example:**
+```bash
+curl -X POST http://localhost:3000/api/test-sample/market-entry-1
+```
+
+## Quick Test Examples
+
+### 1. List Available Frameworks
+```bash
+curl http://localhost:3000/api/frameworks
+```
+
+### 2. Test with Sample Transcript
+```bash
+curl -X POST http://localhost:3000/api/test-sample/profitability-1
+```
+
+### 3. Analyze Custom Transcript
+```bash
+curl -X POST http://localhost:3000/api/analyze \
+  -H "Content-Type: application/json" \
+  -d '{
+    "transcript": "I think we should look at costs first, then revenue.",
+    "frameworkId": "profitability",
+    "bodyLanguage": {
+      "eyeContact": 0.6,
+      "fidgeting": 0.5,
+      "pace": 0.5,
+      "confidence": 0.6
+    }
+  }'
+```
+
+## Available Frameworks
+
+1. **Market Entry** (`market-entry`)
+   - Market, Customer, Competition, Economics, Capabilities, Risks
+
+2. **Profitability Analysis** (`profitability`)
+   - Revenue, Costs, External Factors, Internal Factors
+
+3. **M&A Evaluation** (`merger-acquisition`)
+   - Strategic Fit, Financial, Operational, Risk
+
+4. **Product Launch** (`product-launch`)
+   - Market Opportunity, Product, Go-to-Market, Competition, Economics, Risks
+
+5. **Cost Reduction** (`cost-reduction`)
+   - Cost Categories, Analysis Approach, Implementation, Risk Mitigation
 
 ## Development
 
+### Start with Hot Reload
 ```bash
-# Watch mode
 npm run dev
-
-# Build
-npm run build
-
-# Clean build artifacts
-npm run clean
 ```
 
-## Environment Variables
+### Add New Framework
 
-- `ANTHROPIC_API_KEY`: Anthropic API key (for embeddings, though we use OpenAI)
-- `OPENAI_API_KEY`: OpenAI API key (for Whisper + embeddings)
-- `PORT`: Server port (default: 3000)
-- `NODE_ENV`: Environment (development/production)
+Edit `frameworks.json`:
+```json
+{
+  "id": "new-framework",
+  "name": "New Framework",
+  "description": "Description here",
+  "tree": {
+    "Category1": ["Item1", "Item2"],
+    "Category2": ["Item3", "Item4"]
+  }
+}
+```
 
-## Limitations (Hackathon MVP)
+### Add Sample Transcript
 
-- No authentication/user management
-- In-memory storage (data lost on restart)
-- Body language analysis is stubbed
-- No frontend
-- Basic error handling
-- No production-grade vector DB
+Edit `sampleTranscripts.json`:
+```json
+{
+  "id": "new-sample-1",
+  "frameworkId": "market-entry",
+  "question": "Your case question",
+  "transcript": "Candidate's response...",
+  "bodyLanguage": {
+    "eyeContact": 0.7,
+    "fidgeting": 0.4,
+    "pace": 0.6,
+    "confidence": 0.65
+  }
+}
+```
 
-## Future Enhancements
+## Integration Example
 
-- [ ] Real body language analysis pipeline
-- [ ] Vector database integration (Pinecone/Qdrant)
-- [ ] Persistent storage (PostgreSQL)
-- [ ] Authentication & user management
-- [ ] Similarity search endpoints
-- [ ] Progress tracking over time
-- [ ] WebSocket for real-time processing updates
+### Node.js/JavaScript
+```javascript
+const response = await fetch('http://localhost:3000/api/analyze', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    transcript: userTranscript,
+    frameworkId: 'market-entry',
+    bodyLanguage: bodyLangData
+  })
+});
+
+const result = await response.json();
+console.log('Missing components:', result.analysis.delta.missing);
+console.log('Fix:', result.analysis.fix_summary);
+```
+
+### Python
+```python
+import requests
+
+response = requests.post('http://localhost:3000/api/analyze', json={
+    'transcript': user_transcript,
+    'frameworkId': 'market-entry',
+    'bodyLanguage': {
+        'eyeContact': 0.8,
+        'fidgeting': 0.3,
+        'pace': 0.7,
+        'confidence': 0.75
+    }
+})
+
+result = response.json()
+print('Analysis:', result['analysis'])
+```
+
+## Error Handling
+
+The API returns structured error responses:
+
+```json
+{
+  "success": false,
+  "error": "Framework not found"
+}
+```
+
+Common status codes:
+- `200`: Success
+- `400`: Bad request (missing fields)
+- `404`: Resource not found
+- `500`: Server error
+
+## Cost Considerations
+
+Each analysis call uses the Claude API and costs approximately:
+- **Input tokens**: ~800-1200 tokens (framework + transcript)
+- **Output tokens**: ~400-600 tokens (JSON response)
+- **Total cost per call**: ~$0.01-0.02 USD
+
+The `metadata.tokensUsed` field shows exact usage per request.
+
+## Security Notes
+
+1. **Rotate your API key immediately** after sharing it
+2. Add `.env` to `.gitignore` (already done)
+3. Never commit API keys to version control
+4. Use environment variables in production
+5. Consider rate limiting for production deployments
+
+## Troubleshooting
+
+### "Cannot find module" errors
+```bash
+npm install
+```
+
+### "Failed to parse AI response"
+- Check if your API key is valid
+- Ensure Claude API is accessible
+- Review console logs for raw response
+
+### Port already in use
+Change PORT in `.env`:
+```
+PORT=3001
+```
+
+## Next Steps
+
+- [ ] Add authentication (JWT, API keys)
+- [ ] Implement rate limiting
+- [ ] Add database for storing analyses
+- [ ] Build frontend dashboard
+- [ ] Add more frameworks
+- [ ] Implement scoring system
+- [ ] Add batch processing
+- [ ] Create visualization for mental model trees
 
 ## License
 
 MIT
 
+## Support
+
+For issues or questions, check the console logs or review the sample test cases in `test.js`.

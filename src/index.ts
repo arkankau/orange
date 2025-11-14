@@ -6,6 +6,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import * as path from 'path';
 import sessionsRouter from './routes/sessions';
 import realtimeRouter from './routes/realtime';
+import questionsRouter from './routes/questions';
 
 // Load environment variables
 dotenv.config();
@@ -44,8 +45,9 @@ app.use((req, res, next) => {
 app.set('io', io);
 
 // API Routes (before static files)
-app.use('/sessions', sessionsRouter);
+app.use('/api/sessions', sessionsRouter);
 app.use('/realtime', realtimeRouter(io));
+app.use('/api', questionsRouter);
 
 // Health check
 app.get('/health', (req, res) => {

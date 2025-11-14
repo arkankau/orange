@@ -1,0 +1,282 @@
+import { useState } from "react";
+import { MentalMapComparison } from "@/components/MentalMapComparison";
+import { PerformanceSpider } from "@/components/PerformanceSpider";
+import { QuestionCard } from "@/components/QuestionCard";
+import { FeedbackDrawer } from "@/components/FeedbackDrawer";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Brain, BarChart3, MessageSquare } from "lucide-react";
+
+// Sample data for demonstration
+const sampleUserModel = {
+  id: "1",
+  label: "Market Entry Analysis",
+  children: [
+    {
+      id: "1-1",
+      label: "Market Size",
+      children: [
+        { id: "1-1-1", label: "Total Addressable Market" },
+        { id: "1-1-2", label: "Growth Rate" },
+      ],
+    },
+    {
+      id: "1-2",
+      label: "Competition",
+      children: [
+        { id: "1-2-1", label: "Key Players" },
+      ],
+    },
+    {
+      id: "1-3",
+      label: "Customer Needs",
+      isExtra: true,
+      children: [
+        { id: "1-3-1", label: "Pain Points", isExtra: true },
+      ],
+    },
+  ],
+};
+
+const sampleIdealModel = {
+  id: "2",
+  label: "Market Entry Framework",
+  children: [
+    {
+      id: "2-1",
+      label: "Market Attractiveness",
+      children: [
+        { id: "2-1-1", label: "Market Size & Growth" },
+        { id: "2-1-2", label: "Profitability Potential" },
+      ],
+    },
+    {
+      id: "2-2",
+      label: "Competitive Landscape",
+      children: [
+        { id: "2-2-1", label: "Competitor Analysis" },
+        { id: "2-2-2", label: "Barriers to Entry" },
+      ],
+    },
+    {
+      id: "2-3",
+      label: "Company Fit",
+      children: [
+        { id: "2-3-1", label: "Core Competencies" },
+        { id: "2-3-2", label: "Resource Requirements" },
+      ],
+    },
+  ],
+};
+
+const sampleQuestions = [
+  {
+    id: 1,
+    question: "What factors would you consider when evaluating whether our client should enter the Southeast Asian market?",
+    status: "ready" as const,
+    caseType: "Market Entry",
+  },
+  {
+    id: 2,
+    question: "How would you structure the analysis of the competitive landscape?",
+    status: "pending" as const,
+    caseType: "Market Entry",
+  },
+  {
+    id: 3,
+    question: "What metrics would you use to measure market attractiveness?",
+    status: "reviewed" as const,
+    caseType: "Market Entry",
+  },
+];
+
+const sampleFeedback = {
+  userModel: [
+    "Market Size analysis with TAM and growth rate",
+    "Competition analysis focusing on key players",
+    "Customer Needs assessment (unnecessary for initial framework)",
+  ],
+  idealModel: [
+    "Market Attractiveness (size, growth, profitability)",
+    "Competitive Landscape (competitors, barriers to entry)",
+    "Company Fit (competencies, resources needed)",
+  ],
+  gaps: [
+    "Missing: Profitability Potential analysis",
+    "Missing: Barriers to Entry consideration",
+    "Missing: Company Fit assessment (critical for recommendation)",
+    "Extra: Customer Needs (better suited for later stage analysis)",
+  ],
+  improvements: [
+    "Start with the classic 3C framework: Company, Customers, Competitors",
+    "Add financial attractiveness metrics before going deep into market sizing",
+    "Assess internal capabilities early to determine feasibility",
+    "Use MECE principle: ensure categories don't overlap (Market Size ≠ separate from Attractiveness)",
+  ],
+  quickFix: "Restructure using Market Attractiveness → Competitive Position → Company Fit. This ensures you evaluate opportunity before commitment.",
+};
+
+const performanceMetrics = [
+  { label: "Speech Clarity", value: 4.2, maxValue: 5 },
+  { label: "Speech Pace", value: 3.8, maxValue: 5 },
+  { label: "Vocal Variety", value: 3.5, maxValue: 5 },
+  { label: "Fluency", value: 4.0, maxValue: 5 },
+  { label: "Eye Contact", value: 3.9, maxValue: 5 },
+  { label: "Facial Expression", value: 4.1, maxValue: 5 },
+  { label: "Posture", value: 4.3, maxValue: 5 },
+  { label: "Gestures", value: 3.7, maxValue: 5 },
+];
+
+const Index = () => {
+  const [selectedQuestion, setSelectedQuestion] = useState<number | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const handleQuestionClick = (questionId: number) => {
+    setSelectedQuestion(questionId);
+    setDrawerOpen(true);
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b bg-card">
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Brain className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-foreground">Mental Model Trainer</h1>
+                <p className="text-sm text-muted-foreground">Case Your Personal Performance Lab</p>
+              </div>
+            </div>
+            <Button>End Session</Button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="container mx-auto px-6 py-8">
+        <Tabs defaultValue="analysis" className="space-y-6">
+          <TabsList className="grid w-full max-w-md grid-cols-3">
+            <TabsTrigger value="analysis" className="gap-2">
+              <Brain className="h-4 w-4" />
+              Analysis
+            </TabsTrigger>
+            <TabsTrigger value="questions" className="gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Questions
+            </TabsTrigger>
+            <TabsTrigger value="performance" className="gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Performance
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="analysis" className="space-y-6">
+            <MentalMapComparison
+              userModel={sampleUserModel}
+              idealModel={sampleIdealModel}
+              questionNumber={1}
+            />
+
+            <Card className="p-6 bg-muted/30">
+              <h3 className="font-semibold text-foreground mb-4">Session Statistics</h3>
+              <div className="grid grid-cols-4 gap-4">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-primary">3</div>
+                  <div className="text-sm text-muted-foreground">Questions</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-success">1</div>
+                  <div className="text-sm text-muted-foreground">Reviewed</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-info">78%</div>
+                  <div className="text-sm text-muted-foreground">Avg Score</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-secondary">4.1</div>
+                  <div className="text-sm text-muted-foreground">Clarity</div>
+                </div>
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="questions" className="space-y-4">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-foreground">Session Questions</h2>
+              <Button variant="outline">Export All Feedback</Button>
+            </div>
+            {sampleQuestions.map((q) => (
+              <QuestionCard
+                key={q.id}
+                questionNumber={q.id}
+                question={q.question}
+                status={q.status}
+                caseType={q.caseType}
+                onClick={() => handleQuestionClick(q.id)}
+              />
+            ))}
+          </TabsContent>
+
+          <TabsContent value="performance" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <PerformanceSpider
+                metrics={performanceMetrics}
+                title="Overall Communication Performance"
+              />
+              
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold text-foreground mb-4">
+                  Key Improvement Areas
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-2 h-2 rounded-full bg-warning mt-2" />
+                    <div>
+                      <h4 className="font-medium text-foreground">Vocal Variety</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Practice varying pitch and tone to maintain engagement
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-2 h-2 rounded-full bg-warning mt-2" />
+                    <div>
+                      <h4 className="font-medium text-foreground">Hand Gestures</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Use more purposeful gestures to emphasize key points
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-2 h-2 rounded-full bg-success mt-2" />
+                    <div>
+                      <h4 className="font-medium text-foreground">Speech Clarity</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Excellent enunciation - keep it up!
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </main>
+
+      {/* Feedback Drawer */}
+      <FeedbackDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        questionNumber={selectedQuestion || 1}
+        feedback={sampleFeedback}
+      />
+    </div>
+  );
+};
+
+export default Index;

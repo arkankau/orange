@@ -17,9 +17,14 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const body: CreateSessionRequest = req.body;
 
-    if (!body.questions || !Array.isArray(body.questions)) {
+    // questions is optional - can create empty session for real-time
+    if (!body.questions) {
+      body.questions = [];
+    }
+
+    if (!Array.isArray(body.questions)) {
       return res.status(400).json({
-        error: 'Invalid request: questions array is required',
+        error: 'Invalid request: questions must be an array',
       });
     }
 
@@ -33,7 +38,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json(session);
   } catch (error) {
     console.error('Error creating session:', error);
-    res.status(500).json({ error: 'Failed to create session' });
+    res.status(500).json({ error: 'Failed to create session', details: error instanceof Error ? error.message : String(error) });
   }
 });
 

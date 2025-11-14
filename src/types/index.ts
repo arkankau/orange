@@ -1,11 +1,15 @@
-export interface BodyLanguageFeatures {
-  warmth: number; // 0–1
-  competence: number; // 0–1
-  affect: number; // 0–1
-  eyeContactRatio: number; // 0–1
-  gestureIntensity: number; // 0–1
-  postureStability: number; // 0–1
-}
+// Re-export shared types
+export type {
+  BodyLanguageFeatures,
+  FrameworkMatch,
+  MindmapTree,
+  MindmapDelta,
+  MindmapAnalysis,
+  GradingResult,
+  QuestionResult,
+} from './shared';
+
+import type { BodyLanguageFeatures } from './shared';
 
 export interface Question {
   id: string;
@@ -31,7 +35,7 @@ export interface QuestionVectorRecord {
   sessionId: string;
   questionIndex: number;
   vector: number[];
-  bodyLanguage: BodyLanguageFeatures;
+  bodyLanguage: BodyLanguageFeatures; // Already imported above
   transcript: string;
   createdAt: Date;
 }

@@ -90,9 +90,9 @@ export function normalizeBodyLanguageFeatures(body: BodyLanguageFeatures): numbe
     body.warmth,
     body.competence,
     body.affect,
-    body.eyeContactRatio,
-    body.gestureIntensity,
-    body.postureStability,
+    body.eyeContactRatio ?? 0.5,
+    body.gestureIntensity ?? 0.5,
+    body.postureStability ?? 0.5,
   ];
 }
 

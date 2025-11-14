@@ -1,0 +1,63 @@
+{
+  "frameworks": [
+    {
+      "id": "market-entry",
+      "name": "Market Entry",
+      "description": "Framework for evaluating whether to enter a new market",
+      "tree": {
+        "Market": ["Market size", "Market growth", "Market trends"],
+        "Customer": ["Customer segments", "Customer needs", "Willingness to pay"],
+        "Competition": ["Number of competitors", "Market share", "Competitive advantages", "Barriers to entry"],
+        "Economics": ["Revenue potential", "Cost structure", "Profitability", "Breakeven timeline"],
+        "Capabilities": ["Required capabilities", "Our strengths", "Gaps to fill"],
+        "Risks": ["Regulatory risks", "Market risks", "Execution risks"]
+      }
+    },
+    {
+      "id": "profitability",
+      "name": "Profitability Analysis",
+      "description": "Framework for diagnosing profit issues",
+      "tree": {
+        "Revenue": ["Volume", "Price", "Product mix"],
+        "Costs": ["Fixed costs", "Variable costs", "Cost drivers"],
+        "External Factors": ["Market conditions", "Competition", "Regulations"],
+        "Internal Factors": ["Operations efficiency", "Pricing strategy", "Cost management"]
+      }
+    },
+    {
+      "id": "merger-acquisition",
+      "name": "M&A Evaluation",
+      "description": "Framework for evaluating merger and acquisition opportunities",
+      "tree": {
+        "Strategic Fit": ["Strategic rationale", "Synergies", "Market position"],
+        "Financial": ["Valuation", "Deal structure", "ROI", "Financing"],
+        "Operational": ["Integration complexity", "Cultural fit", "Systems alignment"],
+        "Risk": ["Regulatory approval", "Market reaction", "Execution risk", "Hidden liabilities"]
+      }
+    },
+    {
+      "id": "product-launch",
+      "name": "Product Launch",
+      "description": "Framework for evaluating new product launches",
+      "tree": {
+        "Market Opportunity": ["Target market size", "Growth potential", "Unmet needs"],
+        "Product": ["Value proposition", "Differentiation", "Product-market fit"],
+        "Go-to-Market": ["Distribution channels", "Marketing strategy", "Pricing"],
+        "Competition": ["Existing solutions", "Competitive response", "Barriers to entry"],
+        "Economics": ["Development costs", "Unit economics", "Time to profitability"],
+        "Risks": ["Technical risk", "Market risk", "Timing risk"]
+      }
+    },
+    {
+      "id": "cost-reduction",
+      "name": "Cost Reduction",
+      "description": "Framework for identifying cost reduction opportunities",
+      "tree": {
+        "Cost Categories": ["Personnel", "Operations", "Marketing", "Technology", "Facilities"],
+        "Analysis Approach": ["Benchmark costs", "Identify waste", "Process efficiency", "Outsourcing opportunities"],
+        "Implementation": ["Quick wins", "Long-term initiatives", "Change management"],
+        "Risk Mitigation": ["Quality impact", "Customer impact", "Employee morale", "Revenue impact"]
+      }
+    }
+  ]
+}

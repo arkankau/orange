@@ -35,9 +35,9 @@ export async function generateInterviewFeedback(
 - Warmth: ${Math.round(bodyLanguage.warmth * 100)}%
 - Competence: ${Math.round(bodyLanguage.competence * 100)}%
 - Affect: ${Math.round(bodyLanguage.affect * 100)}%
-- Eye Contact: ${Math.round(bodyLanguage.eyeContactRatio * 100)}%
-- Gesture Intensity: ${Math.round(bodyLanguage.gestureIntensity * 100)}%
-- Posture Stability: ${Math.round(bodyLanguage.postureStability * 100)}%
+- Eye Contact: ${Math.round((bodyLanguage.eyeContactRatio ?? 0.5) * 100)}%
+- Gesture Intensity: ${Math.round((bodyLanguage.gestureIntensity ?? 0.5) * 100)}%
+- Posture Stability: ${Math.round((bodyLanguage.postureStability ?? 0.5) * 100)}%
 `;
 
     const prompt = `You are an expert interview coach analyzing a practice interview response.
@@ -153,9 +153,9 @@ function generateFallbackFeedback(
     bodyLanguage.warmth +
     bodyLanguage.competence +
     bodyLanguage.affect +
-    bodyLanguage.eyeContactRatio +
-    bodyLanguage.gestureIntensity +
-    bodyLanguage.postureStability
+    (bodyLanguage.eyeContactRatio ?? 0.5) +
+    (bodyLanguage.gestureIntensity ?? 0.5) +
+    (bodyLanguage.postureStability ?? 0.5)
   ) / 6;
 
   // Calculate score based on transcript quality and body language
@@ -207,7 +207,7 @@ function generateFallbackFeedback(
     suggestions.push('Practice speaking with more authority and clarity');
   }
 
-  if (bodyLanguage.eyeContactRatio < 0.5) {
+  if ((bodyLanguage.eyeContactRatio ?? 0.5) < 0.5) {
     improvements.push('Improve eye contact during responses');
     suggestions.push('Practice looking at the camera/interviewer more consistently');
   }
